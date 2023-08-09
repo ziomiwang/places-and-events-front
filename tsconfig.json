@@ -18,9 +18,14 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "baseUrl": "src",
+    "paths": {
+      "src/*": ["src/*"],
+      "tslib" : ["node_modules/tslib/tslib.d.ts"]
+    }
   },
   "include": [
-    "src"
+    "src", "src/**/*.ts", "src/**/*.tsx"
   ]
 }
