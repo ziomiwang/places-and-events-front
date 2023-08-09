@@ -1,24 +1,26 @@
 import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
+import Events from "components/events/Events";
+import { useSelector } from "react-redux";
+import { RootState } from "redux/rootReducer";
+import RegisterDemo from "components/registerdemo/RegisterDemo";
+import Router from "routes/Router";
 
 function App() {
+  const { name } = useSelector((state: RootState) => state.user);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div
+      className="App"
+      style={{
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+        <Router/>
+      {/*{name !== "" ? <Events /> : <RegisterDemo />}*/}
     </div>
   );
 }
