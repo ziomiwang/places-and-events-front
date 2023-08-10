@@ -11,13 +11,14 @@ import {
   TextField,
 } from "@mui/material";
 import { CreateNewEvent } from "components/events/service/model/Event";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "redux/store";
 import {
   getSimpleEvents,
   newEvent,
 } from "components/events/service/EventSlice";
 import { getEvents } from "components/events/service/EventService";
+import { RootState } from "redux/rootReducer";
 
 const style = {
   position: "absolute" as "absolute",
@@ -43,7 +44,9 @@ const places = ["Roma", "American", "Kebab u kolegi"];
 const users = ["kuba", "karol", "hubert", "marcel"];
 const CreateEventModal = ({ open, setOpen }: OpenModalProps) => {
   const dispatch = useDispatch<AppDispatch>();
+  const { name } = useSelector((state: RootState) => state.user);
   const [eventData, setEventData] = useState({
+    username: name,
     name: "",
     channelType: "",
     places: [],
@@ -53,7 +56,7 @@ const CreateEventModal = ({ open, setOpen }: OpenModalProps) => {
   const onClickCreateNewProject = () => {
     if (eventData.name && eventData.channelType) {
       dispatch(newEvent(eventData)).then(() => {
-        dispatch(getSimpleEvents());
+        dispatch(getSimpleEvents(name));
       });
     }
   };
@@ -129,7 +132,9 @@ const CreateEventModal = ({ open, setOpen }: OpenModalProps) => {
             </MenuItem>
           ))}
         </Select>
-        <Button variant={"contained"} onClick={onClickCreateNewProject}>Create</Button>
+        <Button variant={"contained"} onClick={onClickCreateNewProject}>
+          Create
+        </Button>
       </Box>
     </Modal>
   );

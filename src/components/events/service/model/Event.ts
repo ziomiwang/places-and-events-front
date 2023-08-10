@@ -11,13 +11,15 @@ export interface SimpleEvent {
 
 export interface Event {
   eventId: string;
-  name: string;
+  eventName: string;
+  owner: string;
   channelType: string;
   participants: Array<string>;
   places: Array<string>;
   chatMessages: Array<ChatMessage>;
 }
 export interface CreateNewEvent {
+  username: string;
   name: string;
   channelType: string;
   places: Array<string>;
@@ -55,16 +57,20 @@ export interface RoomModeResponse {
 export interface ParticipantRequest {
   eventId: string;
   participant: string;
+  requestType: "ADD" | "REMOVE"
 }
 
 export interface ParticipantResponse {
   participant: string;
+  requestType: "ADD" | "REMOVE"
 }
 
 export interface PlaceRequest {
   eventId: string;
   place: string;
+  requestType: "ADD" | "REMOVE"
 }
 export interface PlaceResponse {
   place: string;
+  requestType: "ADD" | "REMOVE"
 }

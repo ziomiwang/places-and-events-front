@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Event,
   ParticipantRequest,
@@ -6,14 +6,18 @@ import {
   RoomModeRequest,
 } from "components/events/service/model/Event";
 import { CompatClient } from "@stomp/stompjs";
-import {Button, MenuItem, Select, TextField} from "@mui/material";
+import { Button, MenuItem, Select, TextField } from "@mui/material";
+import { useSelector } from "react-redux";
+import { RootState } from "redux/rootReducer";
 
 interface CurrentEventProps {
   currentEvent: Event;
   stompClient: CompatClient;
 }
 const CurrentEvent = ({ currentEvent, stompClient }: CurrentEventProps) => {
-  const { eventId, channelType, participants, places, name } = currentEvent;
+  const { eventId, channelType, participants, places, eventName, owner } =
+    currentEvent;
+  const { name } = useSelector((state: RootState) => state.user);
   const [participant, setParticipant] = useState<string>("");
   const [place, setPlace] = useState<string>("");
 
@@ -30,13 +34,16 @@ const CurrentEvent = ({ currentEvent, stompClient }: CurrentEventProps) => {
     );
   };
 
-  const sendParticipantRequest = () => {
+  const sendParticipantRequest = (
+    requestType: "ADD" | "REMOVE",
+    participantId?: string,
+  ) => {
     const participantRequest: ParticipantRequest = {
       eventId: eventId,
-      participant: participant,
+      participant: participantId ? participantId : participant,
+      requestType: requestType,
     };
 
-    console.log("PARTICIPANT req", participantRequest)
     stompClient.send(
       "/app/event-participant-request",
       {},
@@ -44,10 +51,14 @@ const CurrentEvent = ({ currentEvent, stompClient }: CurrentEventProps) => {
     );
   };
 
-  const sendPlaceRequest = () => {
+  const sendPlaceRequest = (
+    requestType: "ADD" | "REMOVE",
+    placeId?: string,
+  ) => {
     const placeRequest: PlaceRequest = {
       eventId: eventId,
-      place: place,
+      place: placeId ? placeId : place,
+      requestType: requestType,
     };
 
     stompClient.send(
@@ -56,6 +67,10 @@ const CurrentEvent = ({ currentEvent, stompClient }: CurrentEventProps) => {
       JSON.stringify(placeRequest),
     );
   };
+
+  const isOwner = useCallback(() => {
+    return name === owner;
+  }, [name, owner]);
 
   return (
     <div
@@ -70,35 +85,62 @@ const CurrentEvent = ({ currentEvent, stompClient }: CurrentEventProps) => {
     >
       <div>
         room info
-        <div>Name: {name}</div>
+        <div>Name: {eventName}</div>
         <div>Mode: {channelType}</div>
-          <Select value={channelType} onChange={(event) => sendModeRequest(event.target.value)}>
-              <MenuItem value={"NORMAL"}>normal</MenuItem>
-              <MenuItem value={"VOTING"}>voting</MenuItem>
-              <MenuItem value={"ROULETTE"}>roulette</MenuItem>
+        <div>Owner: {owner}</div>
+        {isOwner() && (
+          <Select
+            value={channelType}
+            onChange={(event) => sendModeRequest(event.target.value)}
+          >
+            <MenuItem value={"NORMAL"}>normal</MenuItem>
+            <MenuItem value={"VOTING"}>voting</MenuItem>
+            <MenuItem value={"ROULETTE"}>roulette</MenuItem>
           </Select>
+        )}
       </div>
       <div>
         {" "}
         participants:
         <div>
           {participants.map((participant, index) => (
-            <div key={index}>{participant}</div>
+            <div key={index} style={{ display: "flex", gap: "10px" }}>
+              <div>{participant}</div>
+              {isOwner() && (
+                <div
+                  onClick={() => sendParticipantRequest("REMOVE", participant)}
+                >
+                  x
+                </div>
+              )}
+            </div>
           ))}
         </div>
-        <TextField onChange={(event) => setParticipant(event.target.value)}/>
-        <Button variant={"contained"} onClick={sendParticipantRequest}>add</Button>
+        <TextField onChange={(event) => setParticipant(event.target.value)} />
+        <Button
+          variant={"contained"}
+          onClick={() => sendParticipantRequest("ADD")}
+        >
+          add
+        </Button>
       </div>
       <div>
         {" "}
         places
         <div>
           {places.map((place, index) => (
-            <div key={index}>{place}</div>
+            <div key={index} style={{ display: "flex", gap: "10px" }}>
+              <div>{place}</div>
+              {isOwner() && (
+                <div onClick={() => sendPlaceRequest("REMOVE", place)}>x</div>
+              )}
+            </div>
           ))}
         </div>
-        <TextField onChange={(event) => setPlace(event.target.value)}/>
-        <Button variant={"contained"} onClick={sendPlaceRequest}>add</Button>
+        <TextField onChange={(event) => setPlace(event.target.value)} />
+        <Button variant={"contained"} onClick={() => sendPlaceRequest("ADD")}>
+          add
+        </Button>
       </div>
     </div>
   );

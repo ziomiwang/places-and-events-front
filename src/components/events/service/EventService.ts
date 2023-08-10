@@ -2,9 +2,9 @@ import { AxiosResponse } from "axios";
 import { CreateNewEvent, SimpleEvent } from "./model/Event";
 import axios from "shared/axios/axios";
 
-export const getEvents = async () => {
+export const getEvents = async (username: string) => {
   return axios
-    .get<Array<SimpleEvent>>("/event/all")
+    .get<Array<SimpleEvent>>(`/event/all?username=${username}`)
     .then((res: AxiosResponse) => res.data);
 };
 
@@ -14,8 +14,8 @@ export const getSingleEventDetails = async (eventId: string) => {
     .then((res: AxiosResponse) => res.data);
 };
 
-export const createNewEvent = async (newEvent: CreateNewEvent) => {
-  return axios.post("/event/new", newEvent).then((res: AxiosResponse) => res.data);
+export const createNewEvent = async (newEvent: CreateNewEvent, username: string) => {
+  return axios.post(`/event/new?username=${username}`, newEvent).then((res: AxiosResponse) => res.data);
 };
 
 const EventService = {

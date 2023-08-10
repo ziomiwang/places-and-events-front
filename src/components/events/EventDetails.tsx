@@ -27,7 +27,8 @@ const EventDetails = ({ eventId }: EventDetailsProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const [currentEvent, setCurrentEvent] = useState<Event>({
     eventId: "",
-    name: "",
+    eventName: "",
+    owner: "",
     channelType: "",
     places: [],
     participants: [],
@@ -89,20 +90,59 @@ const EventDetails = ({ eventId }: EventDetailsProps) => {
   };
   const onParticipantReceived = (payload: any) => {
     const data: ParticipantResponse = JSON.parse(payload.body);
-    console.log("PARTICIPANT RESPONSE", data);
-    setCurrentEvent((prevState) => {
+    if (data.requestType === "ADD") {
+      setCurrentEvent((prevState) =>
+        addParticipant(prevState, data.participant),
+      );
+    } else {
+      setCurrentEvent((prevState) =>
+        removeParticipant(prevState, data.participant),
+      );
+    }
+  };
+
+  const addParticipant = (prevState: Event, participant: string) => {
+    return {
+      ...prevState,
+      participants: [...prevState.participants, participant],
+    };
+  };
+  const removeParticipant = (prevState: Event, participant: string) => {
+    const index = prevState.participants.indexOf(participant);
+    if (index > -1) {
+      const array = [...prevState.participants]
+      array.splice(index, 1)
       return {
-        ...prevState,
-        participants: [...prevState.participants, data.participant],
-      };
-    });
+        ...prevState, participants: array
+      }
+    }
+    return prevState;
   };
   const onPlaceReceived = (payload: any) => {
     const data: PlaceResponse = JSON.parse(payload.body);
-    console.log("PLACE RESPONSE", data);
-    setCurrentEvent((prevState) => {
-      return { ...prevState, places: [...prevState.places, data.place] };
-    });
+    if (data.requestType === "ADD") {
+      setCurrentEvent((prevState) => addPlace(prevState, data.place));
+    } else {
+      setCurrentEvent((prevState) => removePlace(prevState, data.place));
+    }
+  };
+
+  const addPlace = (prevState: Event, place: string) => {
+    return {
+      ...prevState,
+      places: [...prevState.places, place],
+    };
+  };
+  const removePlace = (prevState: Event, place: string) => {
+    const index = prevState.places.indexOf(place);
+    if (index > -1) {
+      const array = [...prevState.places]
+      array.splice(index, 1)
+      return {
+        ...prevState, places: array
+      }
+    }
+    return prevState;
   };
 
   const sendMessageRequest = () => {

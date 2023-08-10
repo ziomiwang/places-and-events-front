@@ -8,6 +8,7 @@ import EventDetails from "components/events/EventDetails";
 
 const Events = () => {
   const { simpleEvents } = useSelector((state: RootState) => state.events);
+  const { name } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch<AppDispatch>();
   const [openEventModal, setOpenEventModal] = useState<boolean>(false);
   const [selectedEventId, setSelectedEventId] = useState<string>("");
@@ -19,7 +20,7 @@ const Events = () => {
   };
 
   useEffect(() => {
-    dispatch(getSimpleEvents());
+    dispatch(getSimpleEvents(name));
   }, []);
 
   return (
