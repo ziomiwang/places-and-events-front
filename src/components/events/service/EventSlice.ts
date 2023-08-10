@@ -6,8 +6,8 @@ const initialState = {
   simpleEvents: [] as Array<SimpleEvent>,
   event: {},
 } as EventsState;
-export const getSimpleEvents = createAsyncThunk("/events/get", async () => {
-  return await eventService.getEvents();
+export const getSimpleEvents = createAsyncThunk("/events/get", async (username: string) => {
+  return await eventService.getEvents(username);
 });
 
 export const getEventDetails = createAsyncThunk(
@@ -18,7 +18,7 @@ export const getEventDetails = createAsyncThunk(
 );
 
 export const newEvent = createAsyncThunk("/event/new", async (newEvent: CreateNewEvent) => {
-    return await eventService.createNewEvent(newEvent);
+    return await eventService.createNewEvent(newEvent, newEvent.username);
 })
 
 const eventSlice = createSlice({
