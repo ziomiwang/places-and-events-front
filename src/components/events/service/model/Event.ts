@@ -29,10 +29,10 @@ export interface CreateNewEvent {
 export interface ChatMessage {
   senderName: string;
   message: string;
-  time: Date
+  time: Date;
 }
 
-export interface ChatMessageRequest{
+export interface ChatMessageRequest {
   senderName: string;
   message: string;
   eventId: string;
@@ -57,20 +57,76 @@ export interface RoomModeResponse {
 export interface ParticipantRequest {
   eventId: string;
   participant: string;
-  requestType: "ADD" | "REMOVE"
+  requestType: "ADD" | "REMOVE";
 }
 
 export interface ParticipantResponse {
   participant: string;
-  requestType: "ADD" | "REMOVE"
+  requestType: "ADD" | "REMOVE";
 }
 
 export interface PlaceRequest {
   eventId: string;
   place: string;
-  requestType: "ADD" | "REMOVE"
+  requestType: "ADD" | "REMOVE";
 }
 export interface PlaceResponse {
   place: string;
-  requestType: "ADD" | "REMOVE"
+  requestType: "ADD" | "REMOVE";
+}
+
+export interface PlaceWithVotes {
+  place: string;
+  votes: number;
+}
+
+interface EventRequest {
+  eventId: string;
+  eventRequestType: string;
+  eventOperationType: string;
+}
+export interface TestMessageRequest extends EventRequest {
+  senderName: string;
+  message: string;
+}
+
+export interface TestParticipantRequest extends EventRequest {
+  participant: string;
+}
+
+export interface TestPlaceRequest extends EventRequest {
+  place: string
+}
+
+export interface TestModeRequest extends EventRequest {
+  mode: string
+}
+
+export interface EventResponse {
+  eventRequestType: string;
+  eventOperationType: string;
+}
+
+export interface TestMessageResponse extends EventResponse {
+  senderName: string;
+  message: string;
+}
+
+export interface TestParticipantResponse extends EventResponse {
+  participant: string;
+}
+
+export interface TestPlaceResponse extends EventResponse {
+  place: string;
+}
+
+export interface TestRoomModeResponse extends EventResponse {
+  mode: string;
+}
+
+export enum EventRequestType {
+  "MESSAGE" = "MESSAGE",
+  "PARTICIPANT" = "PARTICIPANT",
+  "PLACE" = "PLACE",
+  "MODE" = "MODE",
 }
