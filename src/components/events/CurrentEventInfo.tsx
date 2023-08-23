@@ -1,9 +1,10 @@
 import React, { useCallback, useState } from "react";
 import {
   Event,
-  ParticipantRequest,
-  PlaceRequest,
-  RoomModeRequest,
+  EventRequestType,
+  TestModeRequest,
+  TestParticipantRequest,
+  TestPlaceRequest,
 } from "components/events/service/model/Event";
 import { CompatClient } from "@stomp/stompjs";
 import { Button, MenuItem, Select, TextField } from "@mui/material";
@@ -14,7 +15,7 @@ interface CurrentEventProps {
   currentEvent: Event;
   stompClient: CompatClient;
 }
-const CurrentEvent = ({ currentEvent, stompClient }: CurrentEventProps) => {
+const CurrentEventInfo = ({ currentEvent, stompClient }: CurrentEventProps) => {
   const { eventId, channelType, participants, places, eventName, owner } =
     currentEvent;
   const { name } = useSelector((state: RootState) => state.user);
@@ -22,50 +23,48 @@ const CurrentEvent = ({ currentEvent, stompClient }: CurrentEventProps) => {
   const [place, setPlace] = useState<string>("");
 
   const sendModeRequest = (roomMode: string) => {
-    const modeRequest: RoomModeRequest = {
+    const modeRequest: TestModeRequest = {
       eventId: eventId,
       mode: roomMode,
+      eventRequestType: EventRequestType.MODE,
+      eventOperationType: "ADD",
     };
 
-    stompClient.send(
-      "/app/event-room-mode-request",
-      {},
-      JSON.stringify(modeRequest),
-    );
+    stompClient.send("/app/event-request", {}, JSON.stringify(modeRequest));
   };
 
   const sendParticipantRequest = (
     requestType: "ADD" | "REMOVE",
     participantId?: string,
   ) => {
-    const participantRequest: ParticipantRequest = {
+    const participantRequest: TestParticipantRequest = {
       eventId: eventId,
       participant: participantId ? participantId : participant,
-      requestType: requestType,
+      eventRequestType: EventRequestType.PARTICIPANT,
+      eventOperationType: requestType,
     };
 
     stompClient.send(
-      "/app/event-participant-request",
+      "/app/event-request",
       {},
       JSON.stringify(participantRequest),
     );
+    setParticipant("");
   };
 
   const sendPlaceRequest = (
     requestType: "ADD" | "REMOVE",
     placeId?: string,
   ) => {
-    const placeRequest: PlaceRequest = {
+    const placeRequest: TestPlaceRequest = {
       eventId: eventId,
       place: placeId ? placeId : place,
-      requestType: requestType,
+      eventOperationType: requestType,
+      eventRequestType: EventRequestType.PLACE,
     };
 
-    stompClient.send(
-      "/app/event-place-request",
-      {},
-      JSON.stringify(placeRequest),
-    );
+    stompClient.send("/app/event-request", {}, JSON.stringify(placeRequest));
+    setPlace("");
   };
 
   const isOwner = useCallback(() => {
@@ -109,6 +108,11 @@ const CurrentEvent = ({ currentEvent, stompClient }: CurrentEventProps) => {
               {isOwner() && (
                 <div
                   onClick={() => sendParticipantRequest("REMOVE", participant)}
+                  style={{
+                    backgroundColor: "lightyellow",
+                    borderRadius: "16px",
+                    width: "16px",
+                  }}
                 >
                   x
                 </div>
@@ -116,7 +120,10 @@ const CurrentEvent = ({ currentEvent, stompClient }: CurrentEventProps) => {
             </div>
           ))}
         </div>
-        <TextField onChange={(event) => setParticipant(event.target.value)} />
+        <TextField
+          onChange={(event) => setParticipant(event.target.value)}
+          value={participant || ""}
+        />
         <Button
           variant={"contained"}
           onClick={() => sendParticipantRequest("ADD")}
@@ -132,12 +139,24 @@ const CurrentEvent = ({ currentEvent, stompClient }: CurrentEventProps) => {
             <div key={index} style={{ display: "flex", gap: "10px" }}>
               <div>{place}</div>
               {isOwner() && (
-                <div onClick={() => sendPlaceRequest("REMOVE", place)}>x</div>
+                <div
+                  onClick={() => sendPlaceRequest("REMOVE", place)}
+                  style={{
+                    backgroundColor: "lightyellow",
+                    borderRadius: "16px",
+                    width: "16px",
+                  }}
+                >
+                  x
+                </div>
               )}
             </div>
           ))}
         </div>
-        <TextField onChange={(event) => setPlace(event.target.value)} />
+        <TextField
+          onChange={(event) => setPlace(event.target.value)}
+          value={place || ""}
+        />
         <Button variant={"contained"} onClick={() => sendPlaceRequest("ADD")}>
           add
         </Button>
@@ -146,4 +165,4 @@ const CurrentEvent = ({ currentEvent, stompClient }: CurrentEventProps) => {
   );
 };
 
-export default CurrentEvent;
+export default CurrentEventInfo;

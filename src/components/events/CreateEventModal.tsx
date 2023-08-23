@@ -57,6 +57,7 @@ const CreateEventModal = ({ open, setOpen }: OpenModalProps) => {
     if (eventData.name && eventData.channelType) {
       dispatch(newEvent(eventData)).then(() => {
         dispatch(getSimpleEvents(name));
+        setOpen();
       });
     }
   };
